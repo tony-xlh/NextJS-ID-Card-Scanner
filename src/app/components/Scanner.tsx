@@ -24,6 +24,7 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
       try {
         view.current = await CameraView.createInstance(container.current!);
         dce.current = await CameraEnhancer.createInstance(view.current);
+        dce.current.setResolution({width:1920,height:1080});
         router.current = await CaptureVisionRouter.createInstance();
         await dce.current.open();
       } catch (ex: any) {
