@@ -94,13 +94,12 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
     if (isSteady.current) {
       return;
     }
-    console.log("capture and decode");
+    console.log("capture and detect");
     let results:DetectedQuadResultItem[] = [];
     detecting.current = true;
     try {
       let image = dce.current.fetchImage();
       let capturedResult = await router.current?.capture(image,"DetectDocumentBoundaries_Default");
-      console.log(capturedResult);
       if (capturedResult.detectedQuadResultItems) {
         results = results.concat(capturedResult.detectedQuadResultItems);
       }
@@ -118,18 +117,17 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
   }
 
   const checkIfSteady = async (results:DetectedQuadResultItem[],image:DCEFrame) => {
-    console.log(results);
-    if (results.length>0) {
+    if (results.length>0 && router.current) {
       let result = results[0];
       if (previousResults.current.length >= 3) {
         if (steady() == true) {
           console.log("steady");
           isSteady.current = true;
-          let result = await router.current?.capture(image,"NormalizeDocument_Color");
-          if (result?.normalizedImageResultItems) {
+          let result = await router.current.capture(image,"NormalizeDocument_Color");
+          if (result.normalizedImageResultItems) {
             if (props.onScanned) {
               stopScanning();
-              let blob = await result?.normalizedImageResultItems[0].toBlob("image/png");
+              let blob = await result.normalizedImageResultItems[0].toBlob("image/png");
               let info = await extractInfo(blob);
               props.onScanned(blob,info);
             }
@@ -238,7 +236,7 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
   }
 
   return (
-    <div className="container" ref={container}>
+    <div className="scanner-container" ref={container}>
       <div className="dce-video-container"></div>
       {quadResultItem &&
         <SVGOverlay viewBox={viewBox} quad={quadResultItem}></SVGOverlay>
