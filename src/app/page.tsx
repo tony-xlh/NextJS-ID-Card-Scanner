@@ -1,11 +1,15 @@
 'use client';
 import { useEffect, useState } from "react";
 import "./page.css";
-import Scanner, { HolderInfo } from "./components/Scanner";
+import { HolderInfo } from "./components/Scanner";
 import { init } from "./dcv";
 import Modal from "./components/Modal";
+import dynamic from "next/dynamic";
 
-
+const Scanner = dynamic(() => import("./components/Scanner"), {
+  ssr: false,
+  loading: () => <p>Initializing ID Card Scanner</p>,
+});
 
 export default function Home() {
   const [scanning,setScanning] = useState(false);
