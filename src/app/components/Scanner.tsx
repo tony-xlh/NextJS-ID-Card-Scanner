@@ -123,6 +123,10 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
         if (steady() == true) {
           console.log("steady");
           isSteady.current = true;
+          let newSettings = await router.current.getSimplifiedSettings("NormalizeDocument_Color");
+          newSettings.roiMeasuredInPercentage = false;
+          newSettings.roi.points = results[0].location.points;
+          await router.current.updateSettings("NormalizeDocument_Color", newSettings);
           let result = await router.current.capture(image,"NormalizeDocument_Color");
           if (result.normalizedImageResultItems) {
             if (props.onScanned) {
