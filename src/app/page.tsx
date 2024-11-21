@@ -1,13 +1,17 @@
 'use client';
 import { useEffect, useState } from "react";
 import "./page.css";
-import Scanner from "./components/Scanner";
+import Scanner, { HolderInfo } from "./components/Scanner";
 import { init } from "./dcv";
 import Modal from "./components/Modal";
+
+
 
 export default function Home() {
   const [scanning,setScanning] = useState(false);
   const [initialized,setInitialized] = useState(false);
+  const [dataURL,setDataURL] = useState("");
+  const [info,setInfo] = useState<HolderInfo|undefined>();
   const startScanning = () => {
     setScanning(true);
   }
@@ -26,8 +30,9 @@ export default function Home() {
     initDynamsoft();
   },[])
 
-  const onScanned = (blob:Blob) => {
+  const onScanned = (blob:Blob,info?:HolderInfo) => {
     console.log(blob);
+    console.log(info);
     setScanning(false);
   }
   
@@ -40,6 +45,22 @@ export default function Home() {
       {scanning && (
         <div className="fullscreen">
           <Scanner onScanned={onScanned} onStopped={onStopped}/>
+        </div>
+      )}
+      {(dataURL && info) && (
+        <div className="card">
+          <div>
+            Image:
+            <img src={dataURL} alt="idcard"/>
+          </div>
+          <div>
+            Name:
+            <div></div>
+          </div>
+          <div>
+            Name:
+            <div></div>
+          </div>
         </div>
       )}
       <div className="footer">
