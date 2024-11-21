@@ -2,6 +2,12 @@
 
 A next.js demo scanning ID cards via cameras.
 
+
+
+https://github.com/user-attachments/assets/66f49f75-3bc7-414f-af41-7edff838056f
+
+
+
 It uses the following SDKs by [Dynamsoft](https://www.dynamsoft.com):
 
 * Dynamsoft Camera Enhancer: access cameras and capture frames.
