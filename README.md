@@ -4,11 +4,11 @@ A next.js demo scanning ID cards via cameras.
 
 It uses the following SDKs by [Dynamsoft](https://www.dynamsoft.com):
 
-Dynamsoft Camera Enhancer: access cameras and capture frames.
-Dynamsoft Document Normalizer: crop ID cards in scanned document images.
-Dynamsoft Barcode Reader: read PDF417 on driver's licenses.
-Dynamsoft Label Recognizer: recognize MRZ on ID cards.
-Dynamsoft Code Parser: parse MRZ and barcodes to get meaningful data
+* Dynamsoft Camera Enhancer: access cameras and capture frames.
+* Dynamsoft Document Normalizer: crop ID cards in scanned document images.
+* Dynamsoft Barcode Reader: read PDF417 on driver's licenses.
+* Dynamsoft Label Recognizer: recognize MRZ on ID cards.
+* Dynamsoft Code Parser: parse MRZ and barcodes to get meaningful data
 
 ### License Application
 
