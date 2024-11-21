@@ -1,7 +1,7 @@
 import { MutableRefObject, useEffect, useRef, useState } from 'react';
 import './Scanner.css';
 import { DetectedQuadResultItem } from 'dynamsoft-document-normalizer'
-import { CameraEnhancer, CaptureVisionRouter, CameraView, DCEFrame, CodeParser } from 'dynamsoft-capture-vision-bundle';
+import { CameraEnhancer, CaptureVisionRouter, CameraView, DCEFrame, CodeParser, EnumBarcodeFormat } from 'dynamsoft-capture-vision-bundle';
 import SVGOverlay from './SVGOverlay';
 import { intersectionOverUnion } from '@/utils';
 import { mrzTemplate } from '../dcv';
@@ -154,6 +154,9 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
     if (result && result.barcodeResultItems) {
       for (let index = 0; index < result.barcodeResultItems.length; index++) {
         const item = result.barcodeResultItems[index];
+        if (item.format != EnumBarcodeFormat.BF_PDF417) {
+          continue;
+        }
         let parsedItem = await parser.parse(item.text);
         console.log(parsedItem);
         if (parsedItem.codeType === "AAMVA_DL_ID") {
