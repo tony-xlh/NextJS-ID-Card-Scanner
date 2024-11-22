@@ -244,43 +244,6 @@ export const mrzTemplate = `
         "Sensitivity": 7
       }
     }
-  ],
-  "SemanticProcessingOptions": [
-    {
-      "Name": "sp-passport-and-id",
-      "ReferenceObjectFilter": {
-        "ReferenceTargetROIDefNameArray": ["roi-passport-and-id"]
-      },
-      "TaskSettingNameArray": ["dcp-passport-and-id"]
-    },
-    {
-      "Name": "sp-passport",
-      "ReferenceObjectFilter": {
-        "ReferenceTargetROIDefNameArray": ["roi-passport"]
-      },
-      "TaskSettingNameArray": ["dcp-passport"]
-    },
-    {
-      "Name": "sp-id",
-      "ReferenceObjectFilter": {
-        "ReferenceTargetROIDefNameArray": ["roi-id"]
-      },
-      "TaskSettingNameArray": ["dcp-id"]
-    }
-  ],
-  "CodeParserTaskSettingOptions": [
-    {
-      "Name": "dcp-passport",
-      "CodeSpecifications": ["MRTD_TD3_PASSPORT"]
-    },
-    {
-      "Name": "dcp-id",
-      "CodeSpecifications": ["MRTD_TD1_ID", "MRTD_TD2_ID"]
-    },
-    {
-      "Name": "dcp-passport-and-id",
-      "CodeSpecifications": ["MRTD_TD3_PASSPORT", "MRTD_TD1_ID", "MRTD_TD2_ID"]
-    }
   ]
 }
 `
