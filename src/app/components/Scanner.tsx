@@ -25,8 +25,8 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
   let router: MutableRefObject<CaptureVisionRouter | null> = useRef(null);
   let dce: MutableRefObject<CameraEnhancer | null> = useRef(null);
   let view: MutableRefObject<CameraView | null> = useRef(null);
-  let interval = useRef<any>();
-  let isSteady = useRef(false);
+  const interval = useRef<any>();
+  const isSteady = useRef(false);
   const [viewBox,setViewBox] = useState("0 0 720 1280");
   const detecting = useRef(false);
   const previousResults = useRef<DetectedQuadResultItem[]>([])
@@ -73,7 +73,6 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
 
   const startScanning = async () => {
     stopScanning();
-    await router.current?.initSettings("{\"CaptureVisionTemplates\": [{\"Name\": \"Default\"},{\"Name\": \"DetectDocumentBoundaries_Default\",\"ImageROIProcessingNameArray\": [\"roi-detect-document-boundaries\"]},{\"Name\": \"DetectAndNormalizeDocument_Default\",\"ImageROIProcessingNameArray\": [\"roi-detect-and-normalize-document\"]},{\"Name\": \"NormalizeDocument_Binary\",\"ImageROIProcessingNameArray\": [\"roi-normalize-document-binary\"]},  {\"Name\": \"NormalizeDocument_Gray\",\"ImageROIProcessingNameArray\": [\"roi-normalize-document-gray\"]},  {\"Name\": \"NormalizeDocument_Color\",\"ImageROIProcessingNameArray\": [\"roi-normalize-document-color\"]}],\"TargetROIDefOptions\": [{\"Name\": \"roi-detect-document-boundaries\",\"TaskSettingNameArray\": [\"task-detect-document-boundaries\"]},{\"Name\": \"roi-detect-and-normalize-document\",\"TaskSettingNameArray\": [\"task-detect-and-normalize-document\"]},{\"Name\": \"roi-normalize-document-binary\",\"TaskSettingNameArray\": [\"task-normalize-document-binary\"]},  {\"Name\": \"roi-normalize-document-gray\",\"TaskSettingNameArray\": [\"task-normalize-document-gray\"]},  {\"Name\": \"roi-normalize-document-color\",\"TaskSettingNameArray\": [\"task-normalize-document-color\"]}],\"DocumentNormalizerTaskSettingOptions\": [{\"Name\": \"task-detect-and-normalize-document\",\"SectionImageParameterArray\": [{\"Section\": \"ST_REGION_PREDETECTION\",\"ImageParameterName\": \"ip-detect-and-normalize\"},{\"Section\": \"ST_DOCUMENT_DETECTION\",\"ImageParameterName\": \"ip-detect-and-normalize\"},{\"Section\": \"ST_DOCUMENT_NORMALIZATION\",\"ImageParameterName\": \"ip-detect-and-normalize\"}]},{\"Name\": \"task-detect-document-boundaries\",\"TerminateSetting\": {\"Section\": \"ST_DOCUMENT_DETECTION\"},\"SectionImageParameterArray\": [{\"Section\": \"ST_REGION_PREDETECTION\",\"ImageParameterName\": \"ip-detect\"},{\"Section\": \"ST_DOCUMENT_DETECTION\",\"ImageParameterName\": \"ip-detect\"},{\"Section\": \"ST_DOCUMENT_NORMALIZATION\",\"ImageParameterName\": \"ip-detect\"}]},{\"Name\": \"task-normalize-document-binary\",\"StartSection\": \"ST_DOCUMENT_NORMALIZATION\",   \"ColourMode\": \"ICM_BINARY\",\"SectionImageParameterArray\": [{\"Section\": \"ST_REGION_PREDETECTION\",\"ImageParameterName\": \"ip-normalize\"},{\"Section\": \"ST_DOCUMENT_DETECTION\",\"ImageParameterName\": \"ip-normalize\"},{\"Section\": \"ST_DOCUMENT_NORMALIZATION\",\"ImageParameterName\": \"ip-normalize\"}]},  {\"Name\": \"task-normalize-document-gray\",   \"ColourMode\": \"ICM_GRAYSCALE\",\"StartSection\": \"ST_DOCUMENT_NORMALIZATION\",\"SectionImageParameterArray\": [{\"Section\": \"ST_REGION_PREDETECTION\",\"ImageParameterName\": \"ip-normalize\"},{\"Section\": \"ST_DOCUMENT_DETECTION\",\"ImageParameterName\": \"ip-normalize\"},{\"Section\": \"ST_DOCUMENT_NORMALIZATION\",\"ImageParameterName\": \"ip-normalize\"}]},  {\"Name\": \"task-normalize-document-color\",   \"ColourMode\": \"ICM_COLOUR\",\"StartSection\": \"ST_DOCUMENT_NORMALIZATION\",\"SectionImageParameterArray\": [{\"Section\": \"ST_REGION_PREDETECTION\",\"ImageParameterName\": \"ip-normalize\"},{\"Section\": \"ST_DOCUMENT_DETECTION\",\"ImageParameterName\": \"ip-normalize\"},{\"Section\": \"ST_DOCUMENT_NORMALIZATION\",\"ImageParameterName\": \"ip-normalize\"}]}],\"ImageParameterOptions\": [{\"Name\": \"ip-detect-and-normalize\",\"BinarizationModes\": [{\"Mode\": \"BM_LOCAL_BLOCK\",\"BlockSizeX\": 0,\"BlockSizeY\": 0,\"EnableFillBinaryVacancy\": 0}],\"TextDetectionMode\": {\"Mode\": \"TTDM_WORD\",\"Direction\": \"HORIZONTAL\",\"Sensitivity\": 7}},{\"Name\": \"ip-detect\",\"BinarizationModes\": [{\"Mode\": \"BM_LOCAL_BLOCK\",\"BlockSizeX\": 0,\"BlockSizeY\": 0,\"EnableFillBinaryVacancy\": 0,\"ThresholdCompensation\" : 7}],\"TextDetectionMode\": {\"Mode\": \"TTDM_WORD\",\"Direction\": \"HORIZONTAL\",\"Sensitivity\": 7},\"ScaleDownThreshold\" : 512},{\"Name\": \"ip-normalize\",\"BinarizationModes\": [{\"Mode\": \"BM_LOCAL_BLOCK\",\"BlockSizeX\": 0,\"BlockSizeY\": 0,\"EnableFillBinaryVacancy\": 0}],\"TextDetectionMode\": {\"Mode\": \"TTDM_WORD\",\"Direction\": \"HORIZONTAL\",\"Sensitivity\": 7}}]}");
     if (!interval.current) {
       interval.current = setInterval(captureAndDetect,150);
     }
@@ -123,11 +122,11 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
         if (steady() == true) {
           console.log("steady");
           isSteady.current = true;
-          let newSettings = await router.current.getSimplifiedSettings("NormalizeDocument_Color");
+          let newSettings = await router.current.getSimplifiedSettings("NormalizeDocument_Default");
           newSettings.roiMeasuredInPercentage = false;
           newSettings.roi.points = results[0].location.points;
-          await router.current.updateSettings("NormalizeDocument_Color", newSettings);
-          let result = await router.current.capture(image,"NormalizeDocument_Color");
+          await router.current.updateSettings("NormalizeDocument_Default", newSettings);
+          let result = await router.current.capture(image,"NormalizeDocument_Default");
           if (result.normalizedImageResultItems) {
             if (props.onScanned) {
               stopScanning();
@@ -177,32 +176,33 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
           return info;
         }
       }
-    }else{
-      await router.current?.initSettings(JSON.parse(mrzTemplate));
-      let result = await router.current?.capture(blob,"ReadPassportAndId");
-      if (result && result.textLineResultItems) {
-        let parsedItem = await parser.parse(result.textLineResultItems[0].text);
-        console.log(parsedItem);
-        if (parsedItem.codeType.indexOf("MRTD") != -1) {
-          let number = parsedItem.getFieldValue("documentNumber");
-          if (!number) {
-            number = parsedItem.getFieldValue("passportNumber");
-          }
-          let firstName = parsedItem.getFieldValue("primaryIdentifier");
-          let lastName = parsedItem.getFieldValue("secondaryIdentifier");
-          let birthDate = parsedItem.getFieldValue("dateOfBirth");
-          let sex = parsedItem.getFieldValue("sex");
-          let info:HolderInfo = {
-            firstName:firstName,
-            lastName:lastName,
-            docNumber:number,
-            birthDate:birthDate,
-            sex:sex
-          };
-          return info;
+    }
+
+    await router.current?.initSettings(JSON.parse(mrzTemplate));
+    result = await router.current?.capture(blob,"ReadPassportAndId");
+    if (result && result.textLineResultItems) {
+      let parsedItem = await parser.parse(result.textLineResultItems[0].text);
+      console.log(parsedItem);
+      if (parsedItem.codeType.indexOf("MRTD") != -1) {
+        let number = parsedItem.getFieldValue("documentNumber");
+        if (!number) {
+          number = parsedItem.getFieldValue("passportNumber");
         }
+        let firstName = parsedItem.getFieldValue("primaryIdentifier");
+        let lastName = parsedItem.getFieldValue("secondaryIdentifier");
+        let birthDate = parsedItem.getFieldValue("dateOfBirth");
+        let sex = parsedItem.getFieldValue("sex");
+        let info:HolderInfo = {
+          firstName:firstName,
+          lastName:lastName,
+          docNumber:number,
+          birthDate:birthDate,
+          sex:sex
+        };
+        return info;
       }
     }
+
   }
 
   const steady = () => {
