@@ -1,10 +1,9 @@
 import { MutableRefObject, useEffect, useRef, useState } from 'react';
 import './Scanner.css';
-import { DetectedQuadResultItem } from 'dynamsoft-document-normalizer'
-import { CameraEnhancer, CaptureVisionRouter, CameraView, DCEFrame, CodeParser, EnumBarcodeFormat } from 'dynamsoft-capture-vision-bundle';
+import { BarcodeResultItem, CameraEnhancer, CaptureVisionRouter, CameraView, DCEFrame, CodeParser, DeskewedImageResultItem, DetectedQuadResultItem, EnumBarcodeFormat, EnumCapturedResultItemType, TextLineResultItem } from 'dynamsoft-capture-vision-bundle';
 import SVGOverlay from './SVGOverlay';
 import { intersectionOverUnion } from '@/utils';
-import { mrzTemplate } from '../dcv';
+import { mrzTemplateUrl } from '../dcv';
 
 export interface HolderInfo {
   lastName:string;
@@ -99,8 +98,10 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
     try {
       let image = dce.current.fetchImage();
       let capturedResult = await router.current?.capture(image,"DetectDocumentBoundaries_Default");
-      if (capturedResult.detectedQuadResultItems) {
-        results = results.concat(capturedResult.detectedQuadResultItems);
+      if (capturedResult) {
+        results = capturedResult.items.filter(
+          (item) => item.type === EnumCapturedResultItemType.CRIT_DETECTED_QUAD
+        ) as DetectedQuadResultItem[];
       }
       console.log(results);
       if (results.length>0) {
@@ -127,10 +128,13 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
           newSettings.roi.points = results[0].location.points;
           await router.current.updateSettings("NormalizeDocument_Default", newSettings);
           let result = await router.current.capture(image,"NormalizeDocument_Default");
-          if (result.normalizedImageResultItems) {
+          let normalizedImages = result.items.filter(
+            (item) => item.type === EnumCapturedResultItemType.CRIT_DESKEWED_IMAGE
+          ) as DeskewedImageResultItem[];
+          if (normalizedImages.length > 0) {
             if (props.onScanned) {
               stopScanning();
-              let blob = await result.normalizedImageResultItems[0].toBlob("image/png");
+              let blob = await normalizedImages[0].toBlob("image/png");
               let info = await extractInfo(blob);
               props.onScanned(blob,info);
             }
@@ -152,9 +156,12 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
     await router.current?.resetSettings();
     let result = await router.current?.capture(blob,"ReadBarcodes_Balance");
     console.log(result);
-    if (result && result.barcodeResultItems) {
-      for (let index = 0; index < result.barcodeResultItems.length; index++) {
-        const item = result.barcodeResultItems[index];
+    let barcodes = result ? result.items.filter(
+      (item) => item.type === EnumCapturedResultItemType.CRIT_BARCODE
+    ) as BarcodeResultItem[] : [];
+    if (barcodes.length > 0) {
+      for (let index = 0; index < barcodes.length; index++) {
+        const item = barcodes[index];
         if (item.format != EnumBarcodeFormat.BF_PDF417) {
           continue;
         }
@@ -178,10 +185,13 @@ const Scanner: React.FC<ScannerProps> = (props:ScannerProps) => {
       }
     }
 
-    await router.current?.initSettings(JSON.parse(mrzTemplate));
-    result = await router.current?.capture(blob,"ReadPassportAndId");
-    if (result && result.textLineResultItems) {
-      let parsedItem = await parser.parse(result.textLineResultItems[0].text);
+    await router.current?.initSettings(mrzTemplateUrl);
+    result = await router.current?.capture(blob,"ReadMRZ");
+    let textLines = result ? result.items.filter(
+      (item) => item.type === EnumCapturedResultItemType.CRIT_TEXT_LINE
+    ) as TextLineResultItem[] : [];
+    if (textLines.length > 0) {
+      let parsedItem = await parser.parse(textLines[0].text);
       console.log(parsedItem);
       if (parsedItem.codeType.indexOf("MRTD") != -1) {
         let number = parsedItem.getFieldValue("documentNumber");

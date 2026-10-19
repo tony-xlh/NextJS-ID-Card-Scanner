@@ -1,5 +1,5 @@
 import React from 'react';
-import { DetectedQuadResultItem } from 'dynamsoft-document-normalizer'
+import { DetectedQuadResultItem } from 'dynamsoft-capture-vision-bundle'
 import './SVGOverlay.css';
 
 export interface OverlayProps {

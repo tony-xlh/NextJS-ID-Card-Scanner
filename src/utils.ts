@@ -1,4 +1,4 @@
-import { Point } from "dynamsoft-core";
+import { Point } from "dynamsoft-capture-vision-bundle";
 
 export function intersectionOverUnion(pts1:Point[] ,pts2:Point[]) : number {
   let rect1 = getRectFromPoints(pts1);
